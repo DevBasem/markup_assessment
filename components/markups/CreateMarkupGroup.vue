@@ -12,9 +12,13 @@
     modal
     header="Create Markup Group"
     :style="{ width: '45rem' }"
+    class="max-sm:w-screen"
   >
     <!-- Modal Content Start -->
-    <component :is="currentStep" />
+    <component
+      :is="currentStep"
+      :formData="formData"
+    />
     <!-- Modal Content End -->
 
     <!-- Modal Footer Start -->
@@ -53,7 +57,7 @@
           :label="step === 2 ? 'Create Group' : 'Next'"
           severity="secondary"
           class="bg-primaryAccent text-white"
-          @click="nextStep"
+          @click="step === 2 ? submitForm() : nextStep()"
         />
       </div>
     </div>
@@ -70,6 +74,16 @@ import CreateMarkupStep2 from './CreateMarkupStep2';
 const visible = ref(false);
 const step = ref(1);
 
+// Define a reactive object to hold form data
+const formData = ref({
+  groupName: '',
+  incomingValue: null,
+  outgoingValue: null,
+  selectedCorporates: [],
+  customMarkups: [],
+});
+
+// Handle step changes
 const nextStep = () => {
   if (step.value < 2) {
     step.value++;
@@ -82,9 +96,16 @@ const prevStep = () => {
   }
 };
 
+// Determine the current step component
 const currentStep = computed(() => {
   return step.value === 1 ? CreateMarkupStep1 : CreateMarkupStep2;
 });
+
+// Method to handle form submission
+const submitForm = () => {
+  console.log('Form Data:', formData.value);
+  // Add form submission logic here
+};
 </script>
 
 <style>

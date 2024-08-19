@@ -4,71 +4,73 @@
       <label
         class="text-sm text-secondaryText font-medium"
         for="groupName"
-        >Group Name</label
       >
+        Group Name
+      </label>
       <InputText
         id="groupName"
-        v-model="value"
+        v-model="localFormData.groupName"
         aria-describedby="Group Name"
       />
     </div>
 
-    <div class="flex gap-4 pb-4">
+    <div class="flex flex-wrap gap-4 pb-4">
       <div class="flex-1 flex flex-col gap-2">
         <label
           class="text-sm text-secondaryText font-medium"
           for="incoming"
-          >General Incoming Value (%)</label
         >
+          General Incoming Value (%)
+        </label>
         <InputText
           id="incoming"
-          v-model="value"
-          aria-describedby="username-help"
+          v-model.number="localFormData.incomingValue"
+          aria-describedby="incoming-help"
         />
       </div>
+
       <div class="flex-1 flex flex-col gap-2">
         <label
           class="text-sm text-secondaryText font-medium"
           for="outgoing"
-          >General Outgoing Value (%)</label
         >
+          General Outgoing Value (%)
+        </label>
         <InputText
           id="outgoing"
-          v-model="value"
-          aria-describedby="username-help"
+          v-model.number="localFormData.outgoingValue"
+          aria-describedby="outgoing-help"
         />
       </div>
     </div>
 
-    <div>
-      <div class="flex gap-1 items-center">
-        <span class="font-bold text-lg">Custom Markup</span>
-        <span class="text-primaryAccent text-sm font-medium">(Optional)</span>
-      </div>
-
-      <p class="text-secondaryText">
-        you can add customized markups for specific assets
-      </p>
-
-      <div class="py-4">
-        <Button
-          label="Add Asset Markup"
-          icon="pi pi-plus"
-          severity="secondary"
-          class="bg-primaryAccent text-white"
-          @click="visible = true"
-        />
-      </div>
-    </div>
+    <CustomMarkup :formData="localFormData" />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import Dialog from 'primevue/dialog';
+import { watch, ref } from 'vue';
+import CustomMarkup from './CustomMarkup';
 
-const visible = ref(false);
-const value = ref(null);
+const props = defineProps({
+  formData: {
+    type: Object,
+    required: true,
+  },
+});
+
+const localFormData = ref({ ...props.formData });
+
+// Watch for changes in the local form data and update props
+watch(
+  localFormData,
+  (newValue) => {
+    props.formData.groupName = newValue.groupName;
+    props.formData.incomingValue = newValue.incomingValue;
+    props.formData.outgoingValue = newValue.outgoingValue;
+  },
+  { deep: true }
+);
 </script>
 
 <style lang="scss" scoped></style>

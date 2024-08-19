@@ -11,11 +11,14 @@
         <div
           class="py-4 gap-4 flex flex-wrap justify-between max-sm:justify-center"
         >
-          <MarkupsToolbar />
+          <MarkupsToolbar
+            :searchTerm="searchTerm"
+            @updateSearch="updateSearch"
+          />
         </div>
 
         <div class="-mx-4 py-4">
-          <MarkupsTable />
+          <MarkupsTable :searchTerm="searchTerm" />
         </div>
       </div>
     </div>
@@ -25,10 +28,12 @@
 <script setup>
 import { ref } from 'vue';
 
-const value1 = ref(null);
-const value2 = ref(null);
+const searchTerm = ref('');
 
-const visible = ref(false);
+// Update search term from MarkupsToolbar
+const updateSearch = (term) => {
+  searchTerm.value = term;
+};
 </script>
 
 <style scoped></style>

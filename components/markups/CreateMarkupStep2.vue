@@ -6,16 +6,17 @@
     </div>
 
     <p class="text-secondaryText">
-      Select Corporates to apply this markup to them, You can do this from
+      Select Corporates to apply this markup to them. You can do this from the
       markup page too.
     </p>
+
     <div class="py-6">
       <MultiSelect
-        v-model="selectedCities"
-        :options="cities"
+        v-model="localFormData.selectedCorporates"
+        :options="corporates"
         optionLabel="name"
         filter
-        placeholder="Select Cities"
+        placeholder="Select Corporates"
         :maxSelectedLabels="3"
         class="w-full"
       />
@@ -24,16 +25,46 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import axios from 'axios';
 
-const selectedCities = ref();
-const cities = ref([
-  { name: 'New York', code: 'NY' },
-  { name: 'Rome', code: 'RM' },
-  { name: 'London', code: 'LDN' },
-  { name: 'Istanbul', code: 'IST' },
-  { name: 'Paris', code: 'PRS' },
-]);
+const props = defineProps({
+  formData: {
+    type: Object,
+    required: true,
+  },
+});
+
+const localFormData = ref({ ...props.formData });
+const corporates = ref([]);
+
+// Fetch corporates data
+const fetchCorporates = async () => {
+  try {
+    const response = await axios.get(
+      'https://test.mowafaqa.com.sa/api/corporates'
+    );
+    corporates.value = response.data.data.map((corporate) => ({
+      name: corporate.name,
+      code: corporate.id.toString(),
+    }));
+  } catch (error) {
+    console.error('Error fetching corporates:', error);
+  }
+};
+
+// Watch for changes in the local form data and update props
+watch(
+  localFormData,
+  (newValue) => {
+    props.formData.selectedCorporates = newValue.selectedCorporates;
+  },
+  { deep: true }
+);
+
+onMounted(() => {
+  fetchCorporates();
+});
 </script>
 
 <style lang="scss" scoped></style>

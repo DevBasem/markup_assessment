@@ -1,79 +1,90 @@
 <template>
-  <DataTable
-    :value="products"
-    tableStyle="min-width: 50rem"
-  >
-    <Column
-      v-for="col in columns"
-      :key="col.field"
-      :field="col.field"
-      :header="col.header"
+  <div class="datatable-container">
+    <!-- Show loading spinner or message while data is being fetched -->
+    <Loading v-if="isLoading" />
+
+    <DataTable
+      v-else
+      :value="filteredMarkups"
+      tableStyle="min-width: 50rem"
     >
-      <template
-        #body="slotProps"
-        v-if="col.field === 'actions'"
+      <Column
+        v-for="col in columns"
+        :key="col.field"
+        :field="col.field"
+        :header="col.header"
       >
-        <Toast />
-        <SplitButton
-          label="Save"
-          @click="save"
-          :model="items"
-          severity="secondary"
-        />
-      </template>
-      <template
-        #body="slotProps"
-        v-else
-      >
-        {{ slotProps.data[col.field] }}
-      </template>
-    </Column>
-  </DataTable>
+        <template
+          #body="slotProps"
+          v-if="col.field === 'actions'"
+        >
+          <Toast />
+          <SplitButton
+            label="Save"
+            @click="save"
+            :model="items"
+            severity="secondary"
+          />
+        </template>
+      </Column>
+    </DataTable>
+  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, computed, defineEmits } from 'vue';
+import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
-const toast = useToast();
 
+const props = defineProps(['searchTerm']);
+const toast = useToast();
 const columns = ref([
-  { field: 'groupName', header: 'Group Name' },
-  { field: 'incomingValue', header: 'Incoming Value (%)' },
-  { field: 'outgoingValue', header: 'Outgoing Value (%)' },
+  { field: 'name', header: 'Group Name' },
+  { field: 'incoming_markup', header: 'Incoming Value (%)' },
+  { field: 'outgoing_markup', header: 'Outgoing Value (%)' },
   { field: 'assignedCorporates', header: 'Assigned Corporates' },
   { field: 'actions', header: 'Actions' },
 ]);
 
-const products = ref([
-  {
-    groupName: 'Group A',
-    incomingValue: 10,
-    outgoingValue: 15,
-    assignedCorporates: 'Corporate 1, Corporate 2',
-    actions: 'Edit/Delete',
-  },
-  {
-    groupName: 'Group B',
-    incomingValue: 12,
-    outgoingValue: 18,
-    assignedCorporates: 'Corporate 3, Corporate 4',
-    actions: 'Edit/Delete',
-  },
-  {
-    groupName: 'Group C',
-    incomingValue: 8,
-    outgoingValue: 14,
-    assignedCorporates: 'Corporate 5, Corporate 6',
-    actions: 'Edit/Delete',
-  },
-  {
-    groupName: 'Group D',
-    incomingValue: 8,
-    outgoingValue: 14,
-    assignedCorporates: 'Corporate 5, Corporate 6',
-    actions: 'Edit/Delete',
-  },
-]);
+const markups = ref([]);
+const isLoading = ref(true); // New loading state
+
+const fetchMarkups = async () => {
+  try {
+    const response = await axios.get(
+      'https://test.mowafaqa.com.sa/api/markups'
+    );
+    markups.value = response.data.data.map((markup) => ({
+      name: markup.name,
+      incoming_markup: markup.incoming_markup,
+      outgoing_markup: markup.outgoing_markup,
+      assignedCorporates: markup.packages.map((pkg) => pkg.title).join(', '),
+    }));
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Failed to fetch markups data',
+      life: 3000,
+    });
+  } finally {
+    isLoading.value = false; // Hide loading state when data is fetched
+  }
+};
+
+onMounted(() => {
+  fetchMarkups();
+});
+
+// Computed property to filter markups based on searchTerm
+const filteredMarkups = computed(() => {
+  const term = props.searchTerm.toLowerCase();
+  return markups.value.filter(
+    (markup) =>
+      markup.name.toLowerCase().includes(term) ||
+      markup.assignedCorporates.toLowerCase().includes(term)
+  );
+});
 
 const items = [
   {
@@ -112,5 +123,9 @@ const save = () => {
 
 .p-datatable-tbody td {
   padding-block: 1.5rem !important;
+}
+
+.datatable-container {
+  position: relative;
 }
 </style>

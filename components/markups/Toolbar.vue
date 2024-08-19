@@ -3,7 +3,8 @@
     <IconField>
       <InputIcon class="pi pi-search" />
       <InputText
-        v-model="value1"
+        v-model="localValue"
+        @input="emitSearchTerm"
         placeholder="Search"
       />
     </IconField>
@@ -28,9 +29,25 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, defineEmits } from 'vue';
 
-const value1 = ref(null);
+const props = defineProps(['searchTerm']);
+const emit = defineEmits(['updateSearch']);
+
+const localValue = ref(props.searchTerm || '');
+
+// Emit search term when input changes
+const emitSearchTerm = () => {
+  emit('updateSearch', localValue.value);
+};
+
+// Watch for prop changes and update local value
+watch(
+  () => props.searchTerm,
+  (newTerm) => {
+    localValue.value = newTerm;
+  }
+);
 </script>
 
 <style lang="scss" scoped></style>
