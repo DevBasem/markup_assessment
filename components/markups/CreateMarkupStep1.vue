@@ -68,9 +68,9 @@ watch(
     props.formData.groupName = newValue.groupName;
     props.formData.incomingValue = newValue.incomingValue;
     props.formData.outgoingValue = newValue.outgoingValue;
+    props.formData.customMarkups = newValue.customMarkups;
+    props.formData.visible = newValue.visible;
   },
   { deep: true }
 );
 </script>
-
-<style lang="scss" scoped></style>

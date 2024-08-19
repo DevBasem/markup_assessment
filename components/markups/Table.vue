@@ -6,7 +6,7 @@
     <DataTable
       v-else
       :value="filteredMarkups"
-      tableStyle="min-width: 50rem"
+      tableStyle="min-width: 53rem"
     >
       <Column
         v-for="col in columns"

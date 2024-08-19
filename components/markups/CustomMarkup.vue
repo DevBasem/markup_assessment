@@ -11,7 +11,7 @@
 
     <div
       class="py-4"
-      v-if="!visible"
+      v-if="!formData.visible"
     >
       <Button
         label="Add Asset Markup"
@@ -25,10 +25,10 @@
     <!-- Show Custom Added Markup Start -->
     <div
       class="pt-4"
-      v-if="visible"
+      v-if="formData.visible"
     >
       <div
-        v-for="(markup, index) in localFormData.customMarkups"
+        v-for="(markup, index) in formData.customMarkups"
         :key="index"
         class="pb-4"
       >
@@ -78,6 +78,7 @@
 
       <div class="mb-4">
         <button
+          type="button"
           class="flex items-start justify-center gap-2 w-full p-2 rounded bg-secondaryAccent text-primaryAccent font-medium"
           @click="addMarkup"
         >
@@ -96,7 +97,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, watch } from 'vue';
 import axios from 'axios';
 
 const props = defineProps({
@@ -108,7 +109,6 @@ const props = defineProps({
 
 const localFormData = ref({ ...props.formData });
 const assets = ref([]);
-const visible = ref(false);
 
 const fetchAssets = async () => {
   try {
@@ -123,7 +123,7 @@ const fetchAssets = async () => {
 };
 
 const addMarkup = () => {
-  visible.value = true;
+  localFormData.value.visible = true;
   localFormData.value.customMarkups.push({
     selectedAsset: null,
     incoming: '',
@@ -134,7 +134,7 @@ const addMarkup = () => {
 const removeMarkup = (index) => {
   localFormData.value.customMarkups.splice(index, 1);
   if (localFormData.value.customMarkups.length === 0) {
-    visible.value = false;
+    localFormData.value.visible = false;
   }
 };
 
@@ -143,6 +143,7 @@ watch(
   localFormData,
   (newValue) => {
     props.formData.customMarkups = newValue.customMarkups;
+    props.formData.visible = newValue.visible;
   },
   { deep: true }
 );
@@ -151,5 +152,3 @@ onMounted(() => {
   fetchAssets();
 });
 </script>
-
-<style lang="scss" scoped></style>

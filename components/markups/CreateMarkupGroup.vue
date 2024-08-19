@@ -12,56 +12,58 @@
     modal
     header="Create Markup Group"
     :style="{ width: '45rem' }"
-    class="max-sm:w-screen"
+    class="max-sm:w-screen max-sm:mx-1"
   >
-    <!-- Modal Content Start -->
-    <component
-      :is="currentStep"
-      :formData="formData"
-    />
-    <!-- Modal Content End -->
+    <form @submit.prevent="handleSubmit">
+      <!-- Modal Content Start -->
+      <component
+        :is="currentStep"
+        :formData="formData"
+      />
+      <!-- Modal Content End -->
 
-    <!-- Modal Footer Start -->
-    <div class="flex justify-between items-center gap-2">
-      <!-- Page Indicator -->
-      <div class="w-14 flex gap-1">
-        <div
-          :class="{
-            'bg-primaryAccent w-10': step === 1,
-            'bg-primaryBG w-4': step === 2,
-          }"
-          class="block h-1 transition-all rounded-full"
-        ></div>
-        <div
-          :class="{
-            'bg-primaryBG w-4': step === 1,
-            'bg-primaryAccent w-10': step === 2,
-          }"
-          class="block h-1 transition-all rounded-full"
-        ></div>
-      </div>
+      <!-- Modal Footer Start -->
+      <div class="flex justify-between items-center gap-2">
+        <!-- Page Indicator -->
+        <div class="w-14 flex gap-1">
+          <div
+            :class="{
+              'bg-primaryAccent w-10': step === 1,
+              'bg-primaryBG w-4': step === 2,
+            }"
+            class="block h-1 transition-all rounded-full"
+          ></div>
+          <div
+            :class="{
+              'bg-primaryBG w-4': step === 1,
+              'bg-primaryAccent w-10': step === 2,
+            }"
+            class="block h-1 transition-all rounded-full"
+          ></div>
+        </div>
 
-      <div class="flex gap-2">
-        <!-- Back Button -->
-        <Button
-          v-if="step === 2"
-          type="button"
-          label="Back"
-          severity="secondary"
-          class="text-primaryAccent bg-secondaryAccent"
-          @click="prevStep"
-        />
-        <!-- ( Next / Create Group )  Button -->
-        <Button
-          type="button"
-          :label="step === 2 ? 'Create Group' : 'Next'"
-          severity="secondary"
-          class="bg-primaryAccent text-white"
-          @click="step === 2 ? submitForm() : nextStep()"
-        />
+        <div class="flex gap-2">
+          <!-- Back Button -->
+          <Button
+            v-if="step === 2"
+            type="button"
+            label="Back"
+            severity="secondary"
+            class="text-primaryAccent bg-secondaryAccent"
+            @click="prevStep"
+          />
+          <!-- ( Next / Create Group )  Button -->
+          <Button
+            type="button"
+            :label="step === 2 ? 'Create Group' : 'Next'"
+            severity="secondary"
+            class="bg-primaryAccent text-white"
+            @click="step === 2 ? handleSubmit() : nextStep()"
+          />
+        </div>
       </div>
-    </div>
-    <!-- Modal Footer End -->
+      <!-- Modal Footer End -->
+    </form>
   </Dialog>
 </template>
 
@@ -102,6 +104,14 @@ const currentStep = computed(() => {
 });
 
 // Method to handle form submission
+const handleSubmit = () => {
+  if (step.value === 2) {
+    submitForm();
+  } else {
+    nextStep();
+  }
+};
+
 const submitForm = () => {
   console.log('Form Data:', formData.value);
   // Add form submission logic here
