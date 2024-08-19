@@ -5,7 +5,7 @@
       <InputText
         v-model="localValue"
         @input="emitSearchTerm"
-        placeholder="Search"
+        placeholder="Search By Group Name"
       />
     </IconField>
   </div>
