@@ -160,5 +160,11 @@ const items = (data) => [
       });
     },
   },
+  {
+    label: 'Save',
+    command: () => {
+      saveRow(data);
+    },
+  },
 ];
 </script>
