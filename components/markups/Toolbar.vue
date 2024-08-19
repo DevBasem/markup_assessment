@@ -6,6 +6,7 @@
         v-model="localValue"
         @input="emitSearchTerm"
         placeholder="Search By Group Name"
+        class="placeholder:text-sm"
       />
     </IconField>
   </div>
