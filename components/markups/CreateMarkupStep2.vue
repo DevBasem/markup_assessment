@@ -19,6 +19,7 @@
         placeholder="Select Corporates"
         :maxSelectedLabels="3"
         class="w-full"
+        :pt="{ pcHeaderCheckbox: { class: '' } }"
       />
     </div>
   </div>
@@ -67,4 +68,57 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style>
+.p-checkbox.p-component {
+  display: none;
+}
+
+.p-multiselect-header {
+  display: none !important;
+}
+
+.p-multiselect-list {
+  gap: 0px !important;
+  padding: 0px !important;
+}
+
+.p-multiselect-option {
+  border-radius: 0px !important;
+  padding-inline: 1.2rem !important;
+}
+
+.p-multiselect-option::before {
+  content: '';
+  position: absolute;
+  background-color: #4723f5;
+  left: 0px;
+  width: 0.25rem;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.p-multiselect-overlay.p-component {
+  border: 0px;
+}
+
+.p-multiselect-option[aria-selected='true'] {
+  background-color: #f6f4fe !important;
+  position: relative;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.p-multiselect-option[aria-selected='true']::before {
+  opacity: 100%;
+  transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.p-multiselect.p-component.p-inputwrapper {
+  border-width: 2px;
+  border-color: rgba(122, 128, 133, 0.4) !important;
+}
+
+.p-multiselect.p-component.p-inputwrapper.p-multiselect-open {
+  border-color: #3b82f6 !important;
+}
+</style>

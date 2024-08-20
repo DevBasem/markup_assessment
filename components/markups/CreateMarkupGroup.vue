@@ -3,7 +3,7 @@
     label="Create Markup Group"
     icon="pi pi-plus"
     severity="secondary"
-    class="bg-primaryAccent text-white"
+    class="bg-primaryAccent text-white border-blue-500 max-sm:w-full"
     @click="visible = true"
   />
 
@@ -13,12 +13,16 @@
     header="Create Markup Group"
     :style="{ width: '45rem' }"
     class="max-sm:w-screen max-sm:mx-1"
+    @hide="resetErrors"
   >
     <form @submit.prevent="handleSubmit">
       <!-- Modal Content Start -->
       <component
         :is="currentStep"
         :formData="formData"
+        :errors="errors"
+        @update:formData="updateFormData"
+        @update:errors="updateErrors"
       />
       <!-- Modal Content End -->
 
@@ -52,7 +56,7 @@
             class="text-primaryAccent bg-secondaryAccent"
             @click="prevStep"
           />
-          <!-- ( Next / Create Group )  Button -->
+          <!-- ( Next / Create Group ) Button -->
           <Button
             type="button"
             :label="step === 2 ? 'Create Group' : 'Next'"
@@ -73,10 +77,9 @@ import Dialog from 'primevue/dialog';
 import CreateMarkupStep1 from './CreateMarkupStep1';
 import CreateMarkupStep2 from './CreateMarkupStep2';
 
+// Reactive state
 const visible = ref(false);
 const step = ref(1);
-
-// Define a reactive object to hold form data
 const formData = ref({
   groupName: '',
   incomingValue: null,
@@ -84,9 +87,35 @@ const formData = ref({
   selectedCorporates: [],
   customMarkups: [],
 });
+const errors = ref({});
+
+// Validation function
+const validateStep1 = () => {
+  const errorsObj = {};
+  if (formData.value.groupName.trim() === '') {
+    errorsObj.groupName = 'Group name is required.';
+  }
+  if (
+    formData.value.incomingValue === null ||
+    formData.value.incomingValue === ''
+  ) {
+    errorsObj.incomingValue = 'Incoming value is required.';
+  }
+  if (
+    formData.value.outgoingValue === null ||
+    formData.value.outgoingValue === ''
+  ) {
+    errorsObj.outgoingValue = 'Outgoing value is required.';
+  }
+  errors.value = errorsObj;
+  return Object.keys(errorsObj).length === 0;
+};
 
 // Handle step changes
 const nextStep = () => {
+  if (step.value === 1 && !validateStep1()) {
+    return; // Error messages are already set in errors.value
+  }
   if (step.value < 2) {
     step.value++;
   }
@@ -95,6 +124,10 @@ const nextStep = () => {
 const prevStep = () => {
   if (step.value > 1) {
     step.value--;
+  }
+  // Validate current step when going back
+  if (step.value === 1) {
+    validateStep1();
   }
 };
 
@@ -112,9 +145,32 @@ const handleSubmit = () => {
   }
 };
 
+const sendCreateMarkupRequest = async (data) => {
+  try {
+    const response = await axios.post('https://example.com/api/markups', data);
+    console.log('Response:', response.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
 const submitForm = () => {
   console.log('Form Data:', formData.value);
-  // Add form submission logic here
+  // sendCreateMarkupRequest(formData.value);
+};
+
+// Update form data and errors
+const updateFormData = (newData) => {
+  formData.value = { ...formData.value, ...newData };
+};
+
+const updateErrors = (newErrors) => {
+  errors.value = { ...newErrors };
+};
+
+// Reset errors when the dialog is hidden
+const resetErrors = () => {
+  errors.value = {};
 };
 </script>
 

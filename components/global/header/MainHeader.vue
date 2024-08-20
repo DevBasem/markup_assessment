@@ -14,7 +14,7 @@
 
         <Drawer v-model:visible="visible">
           <template #container="{ closeCallback }">
-            <div class="flex flex-col h-full">
+            <div class="flex flex-col h-full overflow-y-scroll">
               <div class="flex items-center justify-between px-6 pt-4 shrink-0">
                 <div class="flex items-center gap-2 ms-4 py-4">
                   <NuxtImg

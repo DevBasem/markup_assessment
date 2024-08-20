@@ -24,6 +24,7 @@
             <template v-if="isEditingRow(slotProps.data)">
               <InputText
                 v-model="slotProps.data[col.field]"
+                class="focus:border-blue-500 border-2"
                 :disabled="col.field === 'assignedCorporates'"
                 fluid
               />
@@ -40,11 +41,13 @@
           <InputText
             v-if="col.field !== 'actions' && col.field !== 'assignedCorporates'"
             v-model="slotProps.data[col.field]"
+            class="focus:border-blue-500 border-2"
             fluid
           />
           <InputText
             v-if="col.field === 'assignedCorporates'"
             v-model="slotProps.data[col.field]"
+            class="focus:border-blue-500 border-2"
             disabled
             fluid
           />
@@ -58,9 +61,10 @@
       >
         <template #body="slotProps">
           <SplitButton
-            label="Actions"
+            label="Save"
             :model="items(slotProps.data)"
             severity="secondary"
+            @click="saveRow(slotProps.data)"
           />
         </template>
       </Column>
@@ -73,7 +77,7 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
 
-const props = defineProps(['searchTerm']);
+const props = defineProps(['searchWord']);
 const toast = useToast();
 const columns = ref([
   { field: 'name', header: 'Group Name' },
@@ -115,11 +119,11 @@ onMounted(() => {
 });
 
 const filteredMarkups = computed(() => {
-  const term = props.searchTerm.toLowerCase();
+  const word = props.searchWord.toLowerCase();
   return markups.value.filter(
     (markup) =>
-      markup.name.toLowerCase().includes(term) ||
-      markup.assignedCorporates.toLowerCase().includes(term)
+      markup.name.toLowerCase().includes(word) ||
+      markup.assignedCorporates.toLowerCase().includes(word)
   );
 });
 
@@ -140,30 +144,40 @@ const saveRow = (row) => {
   }
 };
 
+const sendEditRequest = async (id) => {
+  try {
+    const response = await axios.put(`https://example.com/api/markups/${id}`);
+    console.log('Response:', response.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+const sendDeleteRequest = async (id) => {
+  try {
+    const response = await axios.delete(
+      `https://example.com/api/markups/${id}`
+    );
+    console.log('Response:', response.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
 const items = (data) => [
   {
     label: 'Edit',
     command: () => {
       // Set the row to edit mode
       editingRows.value = [data];
+      // sendEditRequest(data.id);
     },
   },
   {
     label: 'Delete',
     command: () => {
       // Handle delete action
-      toast.add({
-        severity: 'warn',
-        summary: 'Delete',
-        detail: `Deleting ${data.name}`,
-        life: 3000,
-      });
-    },
-  },
-  {
-    label: 'Save',
-    command: () => {
-      saveRow(data);
+      // sendDeleteRequest(data.id);
     },
   },
 ];
