@@ -35,12 +35,10 @@ const emit = defineEmits(['updateSearch']);
 
 const localValue = ref(props.searchWord || '');
 
-// Emit search word when input changes
 const emitSearchWord = () => {
   emit('updateSearch', localValue.value);
 };
 
-// Watch for prop changes and update local value
 watch(
   () => props.searchWord,
   (newWord) => {
@@ -48,5 +46,3 @@ watch(
   }
 );
 </script>
-
-<style lang="scss" scoped></style>
