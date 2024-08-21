@@ -94,5 +94,3 @@ function isActive(path) {
   return route.path === path;
 }
 </script>
-
-<style scoped></style>

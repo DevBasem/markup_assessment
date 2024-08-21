@@ -115,5 +115,3 @@ const companies = ref([
 
 const visible = ref(false);
 </script>
-
-<style lang="scss" scoped></style>

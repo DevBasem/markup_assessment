@@ -48,24 +48,29 @@
           <div class="flex gap-4 w-full">
             <div class="w-full">
               <InputText
+                id="custom_incoming"
                 v-model.number="markup.incoming"
+                type="number"
                 placeholder="Incoming Value"
                 aria-describedby="incoming-help"
-                class="w-full placeholder:text-sm"
+                class="w-full border-1 placeholder:text-sm placeholder:text-secondaryText placeholder:text-opacity-60 focus:border-blue-500"
               />
             </div>
 
             <div class="w-full">
               <InputText
+                id="custom_outgoing"
                 v-model.number="markup.outgoing"
+                type="number"
                 placeholder="Outgoing Value"
                 aria-describedby="outgoing-help"
-                class="w-full placeholder:text-sm"
+                class="w-full border-1 placeholder:text-sm placeholder:text-secondaryText placeholder:text-opacity-60 focus:border-blue-500"
               />
             </div>
 
             <div>
               <button
+                type="button"
                 class="block w-full p-2 rounded bg-gray-100"
                 @click="removeMarkup(index)"
               >
@@ -96,7 +101,7 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, watch } from 'vue';
 import axios from 'axios';
 
@@ -108,11 +113,19 @@ const props = defineProps({
 });
 
 const localFormData = ref({ ...props.formData });
-const assets = ref([]);
+
+type Asset = {
+  name: string;
+  id: number;
+};
+
+const assets = ref<Asset[]>([]);
 
 const fetchAssets = async () => {
   try {
-    const response = await axios.get('https://test.mowafaqa.com.sa/api/assets');
+    const response = await axios.get<{ data: Asset[] }>(
+      'https://test.mowafaqa.com.sa/api/assets'
+    );
     assets.value = response.data.data.map((asset) => ({
       name: asset.name,
       id: asset.id,
@@ -131,14 +144,13 @@ const addMarkup = () => {
   });
 };
 
-const removeMarkup = (index) => {
+const removeMarkup = (index: number) => {
   localFormData.value.customMarkups.splice(index, 1);
   if (localFormData.value.customMarkups.length === 0) {
     localFormData.value.visible = false;
   }
 };
 
-// Watch for changes in local form data and update props
 watch(
   localFormData,
   (newValue) => {

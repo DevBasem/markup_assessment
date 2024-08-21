@@ -25,7 +25,7 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 
@@ -37,24 +37,26 @@ const props = defineProps({
 });
 
 const localFormData = ref({ ...props.formData });
-const corporates = ref([]);
 
-// Fetch corporates data
+type Corporate = {
+  name: string;
+};
+
+const corporates = ref<Corporate[]>([]);
+
 const fetchCorporates = async () => {
   try {
-    const response = await axios.get(
+    const response = await axios.get<{ data: Corporate[] }>(
       'https://test.mowafaqa.com.sa/api/corporates'
     );
     corporates.value = response.data.data.map((corporate) => ({
       name: corporate.name,
-      code: corporate.id.toString(),
     }));
   } catch (error) {
     console.error('Error fetching corporates:', error);
   }
 };
 
-// Watch for changes in the local form data and update props
 watch(
   localFormData,
   (newValue) => {
@@ -69,6 +71,19 @@ onMounted(() => {
 </script>
 
 <style>
+/* Hide the number input spinner arrows in WebKit browsers (Chrome, Safari) */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide the number input spinner arrows in Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 .p-checkbox.p-component {
   display: none;
 }
@@ -114,7 +129,7 @@ onMounted(() => {
 }
 
 .p-multiselect.p-component.p-inputwrapper {
-  border-width: 2px;
+  border-width: 1px;
   border-color: rgba(122, 128, 133, 0.4) !important;
 }
 

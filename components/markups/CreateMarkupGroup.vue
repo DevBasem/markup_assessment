@@ -71,27 +71,40 @@
   </Dialog>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, computed } from 'vue';
 import Dialog from 'primevue/dialog';
-import CreateMarkupStep1 from './CreateMarkupStep1';
-import CreateMarkupStep2 from './CreateMarkupStep2';
+import CreateMarkupStep1 from './CreateMarkupStep1.vue';
+import CreateMarkupStep2 from './CreateMarkupStep2.vue';
+import axios from 'axios';
 
-// Reactive state
-const visible = ref(false);
-const step = ref(1);
-const formData = ref({
+interface FormData {
+  groupName: string;
+  incomingValue: number | string | null;
+  outgoingValue: number | string | null;
+  selectedCorporates: any[];
+  customMarkups: any[];
+}
+
+interface Errors {
+  groupName?: string;
+  incomingValue?: string;
+  outgoingValue?: string;
+}
+
+const visible = ref<boolean>(false);
+const step = ref<number>(1);
+const formData = ref<FormData>({
   groupName: '',
   incomingValue: null,
   outgoingValue: null,
   selectedCorporates: [],
   customMarkups: [],
 });
-const errors = ref({});
+const errors = ref<Errors>({});
 
-// Validation function
-const validateStep1 = () => {
-  const errorsObj = {};
+const validateStep1 = (): boolean => {
+  const errorsObj: Errors = {};
   if (formData.value.groupName.trim() === '') {
     errorsObj.groupName = 'Group name is required.';
   }
@@ -111,10 +124,9 @@ const validateStep1 = () => {
   return Object.keys(errorsObj).length === 0;
 };
 
-// Handle step changes
 const nextStep = () => {
   if (step.value === 1 && !validateStep1()) {
-    return; // Error messages are already set in errors.value
+    return;
   }
   if (step.value < 2) {
     step.value++;
@@ -125,18 +137,16 @@ const prevStep = () => {
   if (step.value > 1) {
     step.value--;
   }
-  // Validate current step when going back
+
   if (step.value === 1) {
     validateStep1();
   }
 };
 
-// Determine the current step component
 const currentStep = computed(() => {
   return step.value === 1 ? CreateMarkupStep1 : CreateMarkupStep2;
 });
 
-// Method to handle form submission
 const handleSubmit = () => {
   if (step.value === 2) {
     submitForm();
@@ -145,7 +155,7 @@ const handleSubmit = () => {
   }
 };
 
-const sendCreateMarkupRequest = async (data) => {
+const sendCreateMarkupRequest = async (data: FormData) => {
   try {
     const response = await axios.post('https://example.com/api/markups', data);
     console.log('Response:', response.data);
@@ -156,19 +166,19 @@ const sendCreateMarkupRequest = async (data) => {
 
 const submitForm = () => {
   console.log('Form Data:', formData.value);
+
   // sendCreateMarkupRequest(formData.value);
+  visible.value = false;
 };
 
-// Update form data and errors
-const updateFormData = (newData) => {
+const updateFormData = (newData: Partial<FormData>) => {
   formData.value = { ...formData.value, ...newData };
 };
 
-const updateErrors = (newErrors) => {
+const updateErrors = (newErrors: Errors) => {
   errors.value = { ...newErrors };
 };
 
-// Reset errors when the dialog is hidden
 const resetErrors = () => {
   errors.value = {};
 };

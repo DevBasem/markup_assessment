@@ -19,5 +19,3 @@ import { TransitionRoot } from '@headlessui/vue';
 
 const showContent = ref(true);
 </script>
-
-<style lang="scss" scoped></style>

@@ -12,6 +12,10 @@ export default defineNuxtConfig({
     '@nuxtjs/google-fonts',
   ],
 
+  typescript: {
+    typeCheck: true
+  },
+
   googleFonts: {
     families: {
       Inter: {

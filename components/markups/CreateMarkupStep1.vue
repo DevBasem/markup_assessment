@@ -12,11 +12,12 @@
         placeholder="Enter a name"
         v-model="localFormData.groupName"
         aria-describedby="groupName-error"
-        class="border-2 placeholder:text-sm placeholder:text-secondaryText placeholder:text-opacity-60"
+        class="border-1 placeholder:text-sm placeholder:text-secondaryText placeholder:text-opacity-60"
         :class="{
           'border-red-500': errors.groupName,
           'focus:border-blue-500': !errors.groupName,
         }"
+        @focus="clearError('groupName')"
       />
       <!-- Display error message for groupName -->
       <p
@@ -41,11 +42,12 @@
           placeholder="Enter a number"
           v-model.number="localFormData.incomingValue"
           aria-describedby="incoming-error"
-          class="border-2 placeholder:text-sm placeholder:text-secondaryText placeholder:text-opacity-60"
+          class="border-1 placeholder:text-sm placeholder:text-secondaryText placeholder:text-opacity-60"
           :class="{
             'border-red-500': errors.incomingValue,
             'focus:border-blue-500': !errors.incomingValue,
           }"
+          @focus="clearError('incomingValue')"
         />
         <!-- Display error message for incomingValue -->
         <p
@@ -69,11 +71,12 @@
           placeholder="Enter a number"
           v-model.number="localFormData.outgoingValue"
           aria-describedby="outgoing-error"
-          class="border-2 placeholder:text-sm placeholder:text-secondaryText placeholder:text-opacity-60"
+          class="border-1 placeholder:text-sm placeholder:text-secondaryText placeholder:text-opacity-60"
           :class="{
             'border-red-500': errors.outgoingValue,
             'focus:border-blue-500': !errors.outgoingValue,
           }"
+          @focus="clearError('outgoingValue')"
         />
         <!-- Display error message for outgoingValue -->
         <p
@@ -89,9 +92,9 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { watch, ref } from 'vue';
-import CustomMarkup from './CustomMarkup';
+import CustomMarkup from './CustomMarkup.vue';
 
 const props = defineProps({
   formData: {
@@ -108,7 +111,13 @@ const emit = defineEmits(['update:formData']);
 
 const localFormData = ref({ ...props.formData });
 
-// Watch for changes in the local form data and emit updates
+// Function to clear the error for on focus
+const clearError = (field: string): void => {
+  if (props.errors) {
+    delete props.errors[field];
+  }
+};
+
 watch(
   localFormData,
   (newValue) => {

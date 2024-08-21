@@ -22,6 +22,8 @@
     "vue": "latest"
   },
   "devDependencies": {
-    "@primevue/nuxt-module": "^4.0.4"
+    "@primevue/nuxt-module": "^4.0.4",
+    "typescript": "^5.5.4",
+    "vue-tsc": "^2.0.29"
   }
 }

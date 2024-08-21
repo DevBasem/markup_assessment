@@ -24,7 +24,7 @@
             <template v-if="isEditingRow(slotProps.data)">
               <InputText
                 v-model="slotProps.data[col.field]"
-                class="focus:border-blue-500 border-2"
+                class="focus:border-blue-500 border-1"
                 :disabled="col.field === 'assignedCorporates'"
                 fluid
               />
@@ -41,13 +41,13 @@
           <InputText
             v-if="col.field !== 'actions' && col.field !== 'assignedCorporates'"
             v-model="slotProps.data[col.field]"
-            class="focus:border-blue-500 border-2"
+            class="focus:border-blue-500 border-1"
             fluid
           />
           <InputText
             v-if="col.field === 'assignedCorporates'"
             v-model="slotProps.data[col.field]"
-            class="focus:border-blue-500 border-2"
+            class="focus:border-blue-500 border-1"
             disabled
             fluid
           />
@@ -103,12 +103,7 @@ const fetchMarkups = async () => {
       assignedCorporates: 'RoxCustody',
     }));
   } catch (error) {
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'Failed to fetch markups data',
-      life: 3000,
-    });
+    console.error('Error fetching markups:', error);
   } finally {
     isLoading.value = false;
   }
