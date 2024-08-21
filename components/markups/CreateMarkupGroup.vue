@@ -82,8 +82,19 @@ interface FormData {
   groupName: string;
   incomingValue: number | string | null;
   outgoingValue: number | string | null;
-  selectedCorporates: any[];
-  customMarkups: any[];
+  selectedCorporates: string[];
+  customMarkups: CustomMarkup[];
+}
+
+interface Asset {
+  id: number;
+  name: string;
+}
+
+interface CustomMarkup {
+  incoming: number;
+  outgoing: number;
+  selectedAsset: Asset;
 }
 
 interface Errors {

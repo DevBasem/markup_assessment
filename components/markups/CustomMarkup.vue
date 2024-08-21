@@ -40,7 +40,7 @@
               :options="assets"
               optionLabel="name"
               placeholder="Select an Asset"
-              class="w-full"
+              class="w-full focus:border-blue-500"
               :pt="{ label: { class: 'text-sm' } }"
             />
           </div>
@@ -164,3 +164,9 @@ onMounted(() => {
   fetchAssets();
 });
 </script>
+
+<style>
+.p-inputwrapper-focus {
+  border-color: #3b82f6 !important;
+}
+</style>
