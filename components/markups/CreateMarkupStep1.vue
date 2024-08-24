@@ -88,7 +88,10 @@
       </div>
     </div>
 
-    <CustomMarkup :formData="localFormData" />
+    <CustomMarkup
+      :formData="localFormData"
+      v-model:isCustomMarkupValid="isCustomMarkupValid"
+    />
   </div>
 </template>
 
@@ -107,9 +110,11 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:formData']);
+const emit = defineEmits(['update:formData', 'update:isCustomMarkupValid']);
 
 const localFormData = ref({ ...props.formData });
+
+const isCustomMarkupValid = ref(true);
 
 // Function to clear the error for on focus
 const clearError = (field: string): void => {
@@ -125,6 +130,10 @@ watch(
   },
   { deep: true }
 );
+
+watch(isCustomMarkupValid, (newValue) => {
+  emit('update:isCustomMarkupValid', newValue);
+});
 </script>
 
 <style scoped>

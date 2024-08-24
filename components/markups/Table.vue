@@ -137,6 +137,13 @@ const saveRow = (row) => {
     markups.value[index] = row;
     editingRows.value = [];
   }
+
+  toast.add({
+    severity: 'success',
+    summary: 'Saved',
+    detail: `Row with id: ${row.id} has been Saved.`,
+    life: 3000,
+  });
 };
 
 const sendEditRequest = async (id) => {
@@ -159,6 +166,15 @@ const sendDeleteRequest = async (id) => {
   }
 };
 
+const deleteRow = (id) => {
+  const index = markups.value.findIndex((markup) => markup.id === id);
+  if (index !== -1) {
+    markups.value.splice(index, 1);
+  }
+
+  console.log(`Row with id: ${id} is deleted`);
+};
+
 const items = (data) => [
   {
     label: 'Edit',
@@ -172,8 +188,22 @@ const items = (data) => [
     label: 'Delete',
     command: () => {
       // Handle delete action
+      deleteRow(data.id);
+
+      toast.add({
+        severity: 'error',
+        summary: 'Deleted',
+        detail: `Row with the id: ${data.id} is deleted`,
+        life: 3000,
+      });
       // sendDeleteRequest(data.id);
     },
   },
 ];
 </script>
+
+<style>
+li.p-tieredmenu-item[aria-label='Delete'] .p-tieredmenu-item-content:hover {
+  background-color: rgba(255, 0, 0, 0.2) /* Your CSS styles here */;
+}
+</style>

@@ -18,7 +18,7 @@
         icon="pi pi-plus"
         severity="secondary"
         class="bg-primaryAccent text-white"
-        @click="addMarkup"
+        @click="showAndAddMarkup"
       />
     </div>
 
@@ -40,7 +40,13 @@
               :options="assets"
               optionLabel="name"
               placeholder="Select an Asset"
-              class="w-full focus:border-blue-500"
+              @blur="setTouched('asset', index)"
+              @focus="clearTouched('asset', index)"
+              :class="{
+                'border-red-500': !isAssetValid(markup.selectedAsset),
+                'border-blue-500': isAssetValid(markup.selectedAsset),
+              }"
+              class="w-full border-1 focus:border-blue-500"
               :pt="{ label: { class: 'text-sm' } }"
             />
           </div>
@@ -53,6 +59,12 @@
                 type="number"
                 placeholder="Incoming Value"
                 aria-describedby="incoming-help"
+                @blur="setTouched('incoming', index)"
+                @focus="clearTouched('incoming', index)"
+                :class="{
+                  'border-red-500': !isIncomingValid(markup.incoming),
+                  'border-blue-500': isIncomingValid(markup.incoming),
+                }"
                 class="w-full border-1 placeholder:text-sm placeholder:text-secondaryText placeholder:text-opacity-60 focus:border-blue-500"
               />
             </div>
@@ -64,6 +76,12 @@
                 type="number"
                 placeholder="Outgoing Value"
                 aria-describedby="outgoing-help"
+                @blur="setTouched('outgoing', index)"
+                @focus="clearTouched('outgoing', index)"
+                :class="{
+                  'border-red-500': !isOutgoingValid(markup.outgoing),
+                  'border-blue-500': isOutgoingValid(markup.outgoing),
+                }"
                 class="w-full border-1 placeholder:text-sm placeholder:text-secondaryText placeholder:text-opacity-60 focus:border-blue-500"
               />
             </div>
@@ -71,13 +89,22 @@
             <div>
               <button
                 type="button"
-                class="block w-full p-2 rounded bg-gray-100"
+                class="block w-full p-2 rounded bg-gray-100 hover:bg-gray-200"
                 @click="removeMarkup(index)"
               >
                 <i class="pi pi-trash"></i>
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div
+          v-if="!isCustomMarkupValid"
+          class="bg-red-100 text-red-600 p-1 text-center rounded-md"
+        >
+          Please Complete All Fields
         </div>
       </div>
 
@@ -102,7 +129,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import axios from 'axios';
 
 const props = defineProps({
@@ -111,6 +138,8 @@ const props = defineProps({
     required: true,
   },
 });
+
+const emit = defineEmits(['update:isCustomMarkupValid']);
 
 const localFormData = ref({ ...props.formData });
 
@@ -135,8 +164,21 @@ const fetchAssets = async () => {
   }
 };
 
-const addMarkup = () => {
+const showAndAddMarkup = () => {
+  touchedFields.value = {};
+
+  if (localFormData.value.customMarkups.length > 0) {
+    localFormData.value.customMarkups = [];
+  }
   localFormData.value.visible = true;
+  localFormData.value.customMarkups.push({
+    selectedAsset: null,
+    incoming: '',
+    outgoing: '',
+  });
+};
+
+const addMarkup = () => {
   localFormData.value.customMarkups.push({
     selectedAsset: null,
     incoming: '',
@@ -151,6 +193,43 @@ const removeMarkup = (index: number) => {
   }
 };
 
+const isAssetValid = (asset: any) => asset !== null && asset !== undefined;
+
+const isIncomingValid = (incoming: number | string) => incoming !== '';
+
+const isOutgoingValid = (outgoing: number | string) => outgoing !== '';
+
+const isCustomMarkupValid = computed(() => {
+  // Validate each custom markup
+  return localFormData.value.customMarkups.every(
+    (markup: any) =>
+      isAssetValid(markup.selectedAsset) &&
+      isIncomingValid(markup.incoming) &&
+      isOutgoingValid(markup.outgoing)
+  );
+});
+
+// Define type for touched fields
+interface TouchedFields {
+  [key: string]: boolean;
+}
+
+const touchedFields = ref<Record<number, TouchedFields>>({});
+
+const setTouched = (field: string, index: number) => {
+  if (!touchedFields.value[index]) {
+    touchedFields.value[index] = {};
+  }
+  touchedFields.value[index][field] = true;
+};
+
+const clearTouched = (field: string, index: number) => {
+  if (!touchedFields.value[index]) {
+    touchedFields.value[index] = {};
+  }
+  touchedFields.value[index][field] = false;
+};
+
 watch(
   localFormData,
   (newValue) => {
@@ -160,13 +239,16 @@ watch(
   { deep: true }
 );
 
+watch(isCustomMarkupValid, (valid) => {
+  console.log('Form validity state (watcher):', valid); // Log validity state changes
+});
+
+// Watch for changes in isCustomMarkupValid and emit the result
+watch(isCustomMarkupValid, (valid) => {
+  emit('update:isCustomMarkupValid', valid);
+});
+
 onMounted(() => {
   fetchAssets();
 });
 </script>
-
-<style>
-.p-inputwrapper-focus {
-  border-color: #3b82f6 !important;
-}
-</style>

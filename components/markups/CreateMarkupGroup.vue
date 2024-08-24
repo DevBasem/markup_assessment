@@ -4,7 +4,7 @@
     icon="pi pi-plus"
     severity="secondary"
     class="bg-primaryAccent text-white border-blue-500 max-sm:w-full"
-    @click="visible = true"
+    @click="openDialog"
   />
 
   <Dialog
@@ -13,16 +13,19 @@
     header="Create Markup Group"
     :style="{ width: '45rem' }"
     class="max-sm:w-screen max-sm:mx-1"
-    @hide="resetErrors"
+    @hide="handleHide"
+    :closeOnEscape="true"
   >
     <form @submit.prevent="handleSubmit">
       <!-- Modal Content Start -->
       <component
+        v-if="visible"
         :is="currentStep"
         :formData="formData"
         :errors="errors"
         @update:formData="updateFormData"
         @update:errors="updateErrors"
+        @update:isCustomMarkupValid="updateIsCustomMarkupValid"
       />
       <!-- Modal Content End -->
 
@@ -76,43 +79,28 @@ import { ref, computed } from 'vue';
 import Dialog from 'primevue/dialog';
 import CreateMarkupStep1 from './CreateMarkupStep1.vue';
 import CreateMarkupStep2 from './CreateMarkupStep2.vue';
+import type {
+  FormData,
+  Errors,
+  CustomMarkup,
+} from '../../types/CreateMarkupGroupTypes.ts';
+import { useToast } from 'primevue/usetoast';
 import axios from 'axios';
 
-interface FormData {
-  groupName: string;
-  incomingValue: number | string | null;
-  outgoingValue: number | string | null;
-  selectedCorporates: string[];
-  customMarkups: CustomMarkup[];
-}
-
-interface Asset {
-  id: number;
-  name: string;
-}
-
-interface CustomMarkup {
-  incoming: number;
-  outgoing: number;
-  selectedAsset: Asset;
-}
-
-interface Errors {
-  groupName?: string;
-  incomingValue?: string;
-  outgoingValue?: string;
-}
-
-const visible = ref<boolean>(false);
-const step = ref<number>(1);
-const formData = ref<FormData>({
+const initialFormData: FormData = {
   groupName: '',
   incomingValue: null,
   outgoingValue: null,
   selectedCorporates: [],
   customMarkups: [],
-});
+};
+
+const toast = useToast();
+const visible = ref<boolean>(false);
+const step = ref<number>(1);
+const formData = ref<FormData>({ ...initialFormData });
 const errors = ref<Errors>({});
+const isCustomMarkupValid = ref<boolean>(true);
 
 const validateStep1 = (): boolean => {
   const errorsObj: Errors = {};
@@ -137,6 +125,9 @@ const validateStep1 = (): boolean => {
 
 const nextStep = () => {
   if (step.value === 1 && !validateStep1()) {
+    return;
+  }
+  if (step.value === 1 && !isCustomMarkupValid.value) {
     return;
   }
   if (step.value < 2) {
@@ -175,10 +166,28 @@ const sendCreateMarkupRequest = async (data: FormData) => {
   }
 };
 
-const submitForm = () => {
-  console.log('Form Data:', formData.value);
+const submitForm = async () => {
+  const transformedFormData = {
+    ...formData.value,
+    customMarkups: formData.value.customMarkups.map((markup) => ({
+      incoming: markup.incoming,
+      outgoing: markup.outgoing,
+      asset_id: markup.selectedAsset?.id ?? null,
+    })),
+  };
+  console.log('Form Data:', transformedFormData);
 
-  // sendCreateMarkupRequest(formData.value);
+  toast.add({
+    severity: 'success',
+    summary: 'Success',
+    detail: 'Data Submitted Successfully',
+    life: 3000,
+  });
+
+  // Save form data to local storage
+  localStorage.setItem('markupFormData', JSON.stringify(formData.value));
+
+  // Close the dialog
   visible.value = false;
 };
 
@@ -190,8 +199,19 @@ const updateErrors = (newErrors: Errors) => {
   errors.value = { ...newErrors };
 };
 
-const resetErrors = () => {
+const updateIsCustomMarkupValid = (valid: boolean) => {
+  isCustomMarkupValid.value = valid;
+};
+
+const handleHide = () => {
+  // Reset the form data, errors, and step
+  formData.value = { ...initialFormData };
   errors.value = {};
+  step.value = 1;
+};
+
+const openDialog = () => {
+  visible.value = true;
 };
 </script>
 
