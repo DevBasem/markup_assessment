@@ -131,12 +131,50 @@ const onRowEditSave = (event) => {
   markups.value[index] = newData;
 };
 
+// A Dev Note:
+// In my humble knowledge, when we need to modify data on the backend,
+// we send the ID as a parameter in the URL. The backend processes the request
+// and sends back the modified payload, which can then be processed and
+// displayed on the frontend.
+
+// in the task simulated url contains an id as a parameter
+// thats why i didn't understand the requirement.
+
+const sendEditRequest = async (id, updatedData) => {
+  try {
+    const response = await axios.put(`https://example.com/api/markups/${id}`, {
+      updatedData,
+    });
+    console.log('Response:', response.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+  console.log(updatedData);
+};
+
+const sendDeleteRequest = async (id, remainingData) => {
+  try {
+    const response = await axios.delete(
+      `https://example.com/api/markups/${id}`,
+      {
+        data: { remainingData },
+      }
+    );
+    console.log('Response:', response.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+  console.log(remainingData);
+};
+
 const saveRow = (row) => {
   const index = markups.value.findIndex((markup) => markup.id === row.id);
   if (index !== -1) {
     markups.value[index] = row;
     editingRows.value = [];
   }
+
+  sendEditRequest(row.id, markups.value);
 
   toast.add({
     severity: 'success',
@@ -146,31 +184,20 @@ const saveRow = (row) => {
   });
 };
 
-const sendEditRequest = async (id) => {
-  try {
-    const response = await axios.put(`https://example.com/api/markups/${id}`);
-    console.log('Response:', response.data);
-  } catch (error) {
-    console.error('Error:', error);
-  }
-};
-
-const sendDeleteRequest = async (id) => {
-  try {
-    const response = await axios.delete(
-      `https://example.com/api/markups/${id}`
-    );
-    console.log('Response:', response.data);
-  } catch (error) {
-    console.error('Error:', error);
-  }
-};
-
 const deleteRow = (id) => {
   const index = markups.value.findIndex((markup) => markup.id === id);
   if (index !== -1) {
     markups.value.splice(index, 1);
   }
+
+  sendDeleteRequest(id, markups.value);
+
+  toast.add({
+    severity: 'error',
+    summary: 'Deleted',
+    detail: `Row with the id: ${data.id} is deleted`,
+    life: 3000,
+  });
 
   console.log(`Row with id: ${id} is deleted`);
 };
@@ -181,7 +208,6 @@ const items = (data) => [
     command: () => {
       // Set the row to edit mode
       editingRows.value = [data];
-      // sendEditRequest(data.id);
     },
   },
   {
@@ -189,14 +215,6 @@ const items = (data) => [
     command: () => {
       // Handle delete action
       deleteRow(data.id);
-
-      toast.add({
-        severity: 'error',
-        summary: 'Deleted',
-        detail: `Row with the id: ${data.id} is deleted`,
-        life: 3000,
-      });
-      // sendDeleteRequest(data.id);
     },
   },
 ];

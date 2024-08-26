@@ -102,8 +102,12 @@
       <div class="mb-4">
         <div
           v-if="!isCustomMarkupValid"
-          class="bg-red-100 text-red-600 p-1 text-center rounded-md"
+          class="bg-yellow-50 text-yellow-600 p-1 text-center rounded-md flex items-center justify-center gap-2"
         >
+          <i
+            class="pi pi-exclamation-circle"
+            style="font-size: 1.2rem"
+          ></i>
           Please Complete All Fields
         </div>
       </div>
