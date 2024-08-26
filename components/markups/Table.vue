@@ -195,11 +195,9 @@ const deleteRow = (id) => {
   toast.add({
     severity: 'error',
     summary: 'Deleted',
-    detail: `Row with the id: ${data.id} is deleted`,
+    detail: `Row with the id: ${id} is deleted`,
     life: 3000,
   });
-
-  console.log(`Row with id: ${id} is deleted`);
 };
 
 const items = (data) => [
