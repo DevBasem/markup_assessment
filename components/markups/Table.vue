@@ -179,7 +179,7 @@ const saveRow = (row) => {
   toast.add({
     severity: 'success',
     summary: 'Saved',
-    detail: `Row with id: ${row.id} has been Saved.`,
+    detail: `Data saved successfully`,
     life: 3000,
   });
 };
@@ -195,7 +195,7 @@ const deleteRow = (id) => {
   toast.add({
     severity: 'error',
     summary: 'Deleted',
-    detail: `Row with the id: ${id} is deleted`,
+    detail: `Row has been deleted`,
     life: 3000,
   });
 };
